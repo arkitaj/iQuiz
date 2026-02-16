@@ -8,31 +8,29 @@
 import Foundation
 import UIKit
 
-// MARK: - Model
 
 struct Quiz {
     let title: String
     let description: String
-    let iconName: String
+    let icon: String
 }
 
-// MARK: - View Controller
 
 class QuizListViewController: UITableViewController {
 
     // In-memory array (Part 1 requirement)
     let quizzes: [Quiz] = [
         Quiz(title: "Mathematics",
-             description: "Test your math skills.",
-             iconName: "function"),
+             description: "Try out some math problems!",
+             icon: "plus.slash.minus"),
         
         Quiz(title: "Marvel Super Heroes",
-             description: "How well do you know Marvel?",
-             iconName: "bolt.fill"),
+             description: "How big of a Marvel fan are you?",
+             icon: "star.fill"),
         
         Quiz(title: "Science",
-             description: "Explore scientific facts.",
-             iconName: "atom")
+             description: "Try out some science problems!",
+             icon: "flask")
     ]
 
     override func viewDidLoad() {
@@ -40,7 +38,6 @@ class QuizListViewController: UITableViewController {
         
         title = "iQuiz"
         
-        // Settings button in top toolbar
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             title: "Settings",
             style: .plain,
@@ -49,7 +46,6 @@ class QuizListViewController: UITableViewController {
         )
     }
 
-    // MARK: - TableView Data Source
 
     override func tableView(_ tableView: UITableView,
                             numberOfRowsInSection section: Int) -> Int {
@@ -66,15 +62,18 @@ class QuizListViewController: UITableViewController {
         )
 
         let quiz = quizzes[indexPath.row]
+        
+        var content = cell.defaultContentConfiguration()
+        content.text = quiz.title
+        content.secondaryText = quiz.description
+        content.image = UIImage(systemName: quiz.icon)
 
-        cell.textLabel?.text = quiz.title
-        cell.detailTextLabel?.text = quiz.description
-        cell.imageView?.image = UIImage(systemName: quiz.iconName)
+        cell.contentConfiguration = content
+
 
         return cell
     }
 
-    // MARK: - Settings Alert
 
     @objc func showSettings() {
         let alert = UIAlertController(
