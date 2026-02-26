@@ -5,17 +5,16 @@
 
 import UIKit
 
-struct Quiz {
+struct Quiz: Codable {
     let title: String
-    let description: String
-    let icon: String
+    let desc: String
     let questions: [Question]
 }
 
-struct Question {
+struct Question: Codable {
     let text: String
+    let answer: String   // IMPORTANT: String, not Int
     let answers: [String]
-    let correctIndex: Int
 }
 
 
@@ -23,72 +22,50 @@ struct Question {
 
 class QuizListViewController: UITableViewController {
     
-    let quizzes: [Quiz] = [
-        
-        Quiz(
-            title: "Mathematics",
-            description: "Try out some math problems!",
-            icon: "plus.slash.minus",
-            questions: [
-                Question(
-                    text: "What is [(12^2)*32]/3]",
-                    answers: ["3203", "4608", "5429"],
-                    correctIndex: 1
-                ),
-                Question(
-                    text: "What is 5 * 9 * 2?",
-                    answers: ["80", "100", "90"],
-                    correctIndex: 2
-                )
-            ]
-        ),
-        
-        Quiz(
-            title: "Marvel Super Heroes",
-            description: "How big of a Marvel fan are you?",
-            icon: "star.fill",
-            questions: [
-                Question(
-                    text: "Who plays Tony Stark (aka Iron Man)?",
-                    answers: ["Robert Downey Jr", "Bruce Banner", "Chris Evans"],
-                    correctIndex: 0
-                ),
-                Question(
-                    text: "What is Thor's Power?",
-                    answers: ["Thunder", "Hammer", "Strength"],
-                    correctIndex: 0
-                ),
-                Question(
-                    text: "Who is Thor's Brother?",
-                    answers: ["Hulk", "Loki", "Black Widow"],
-                    correctIndex: 1
-                )
-            ]
-        ),
-        
-        Quiz(
-            title: "Science",
-            description: "Try out some science problems!",
-            icon: "flask",
-            questions: [
-                Question(
-                    text: "What percentage of the Earth's surface is covered in water?",
-                    answers: ["70%", "71%", "72%"],
-                    correctIndex: 1
-                )
-            ]
-        )
-    ]
+    var quizzes: [Quiz] = []
 
+    func loadQuizzes() {
+        
+        let url = UserDefaults.standard.string(forKey: "quizURL")
+            ?? "http://tednewardsandbox.site44.com/questions.json"
+        
+        NetworkManager.shared.fetchQuizzes(from: url) { result in
+            
+            switch result {
+                
+            case .success(let downloadedQuizzes):
+                self.quizzes = downloadedQuizzes
+                self.tableView.reloadData()
+                
+            case .failure:
+                print("Failed to load quizzes")
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         title = "iQuiz"
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Settings",
+            style: .plain,
+            target: self,
+            action: #selector(openSettings)
+        )
+        
+        loadQuizzes()
     }
     
     override func tableView(_ tableView: UITableView,
                             numberOfRowsInSection section: Int) -> Int {
         return quizzes.count
+    }
+    
+    @objc func openSettings() {
+        let settingsVC = SettingsViewController()
+        navigationController?.pushViewController(settingsVC, animated: true)
     }
     
     override func tableView(_ tableView: UITableView,
@@ -105,8 +82,7 @@ class QuizListViewController: UITableViewController {
         content.text = quiz.title
         
         // description and title from part 1
-        content.secondaryText = quiz.description
-        content.image = UIImage(systemName: quiz.icon)
+        content.secondaryText = quiz.desc
         
         
         
@@ -215,7 +191,12 @@ class QuizViewController: UIViewController {
         showingAnswer = true
         
         let question = quiz.questions[currentQuestionIndex]
-        let correctIndex = question.correctIndex
+        
+        // Convert JSON string answer to zero-based Int
+        guard let correctIndex = Int(question.answer).map({ $0 - 1 }) else {
+            questionLabel.text = "Error determining correct answer."
+            return
+        }
         
         if selectedAnswerInt == correctIndex {
             score += 1
@@ -228,7 +209,6 @@ class QuizViewController: UIViewController {
         
         mainButton.setTitle("Next", for: .normal)
     }
-    
 // score scene
     
     func showFinishedScreen() {
