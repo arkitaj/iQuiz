@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D4F3F1CB2F508354005B567A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = D4F3F1CA2F508354005B567A /* Settings.bundle */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D40E84342F42CF61000A345E /* iQuiz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iQuiz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4F3F1CA2F508354005B567A /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -45,6 +50,7 @@
 		D40E842B2F42CF61000A345E = {
 			isa = PBXGroup;
 			children = (
+				D4F3F1CA2F508354005B567A /* Settings.bundle */,
 				D40E84362F42CF61000A345E /* iQuiz */,
 				D40E84352F42CF61000A345E /* Products */,
 			);
@@ -122,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4F3F1CB2F508354005B567A /* Settings.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -36,9 +36,12 @@ class QuizListViewController: UITableViewController {
             case .success(let downloadedQuizzes):
                 self.quizzes = downloadedQuizzes
                 self.tableView.reloadData()
+                self.saveQuizzesToDisk(downloadedQuizzes)
+                
                 
             case .failure:
-                print("Failed to load quizzes")
+                print("Network failed! Loading local data instead.")
+                self.loadQuizzesFromDisk()
             }
         }
     }
@@ -58,14 +61,44 @@ class QuizListViewController: UITableViewController {
         loadQuizzes()
     }
     
+    func getDocumentsDirectory() -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+    
+    
+    func loadQuizzesFromDisk() {
+        
+        let url = getDocumentsDirectory().appendingPathComponent("quizzes.json")
+        
+        if let data = try? Data(contentsOf: url) {
+            let decoder = JSONDecoder()
+            if let savedQuizzes = try? decoder.decode([Quiz].self, from: data) {
+                self.quizzes = savedQuizzes
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    
+    func saveQuizzesToDisk(_ quizzes: [Quiz]) {
+        
+        let encoder = JSONEncoder()
+        
+        if let data = try? encoder.encode(quizzes) {
+            let url = getDocumentsDirectory().appendingPathComponent("quizzes.json")
+            try? data.write(to: url)
+        }
+    }
+    
     override func tableView(_ tableView: UITableView,
                             numberOfRowsInSection section: Int) -> Int {
         return quizzes.count
     }
     
     @objc func openSettings() {
-        let settingsVC = SettingsViewController()
-        navigationController?.pushViewController(settingsVC, animated: true)
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
     }
     
     override func tableView(_ tableView: UITableView,
